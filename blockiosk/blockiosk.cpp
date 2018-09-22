@@ -24,14 +24,12 @@ class blockiosk : public contract {
 
     public:
         blockiosk( account_name self ):contract(self){}
-
-        typedef eosio::multi_index<N(accounts), accounts> _accounts;
         typedef eosio::multi_index<N(actions), actions> _actions;
 
         void takeaction( account_name owner, std::string act_type, std::string where, std::string memo){
             _actions action(_self, _self);
             action.emplace( _self, [&]( auto& a ){
-                a.action_type = action_type;
+                a.act_type = act_type;
                 a.owner = owner;
                 a.act_type = act_type;
                 a.where = where;
@@ -46,7 +44,7 @@ class blockiosk : public contract {
             auto act = action.get( owner );
             auto act_obj = name{act.owner};
             std::string act_str = act_obj.to_string();
-            print(act_str);
+            print(act_str, ": ", act.act_type, act.where, act.memo, act.create_time);
         }
 };
 
