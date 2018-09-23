@@ -1,5 +1,5 @@
-# blockiosk-server
-EOS Hackathon London, eoswag
+# bizEOS-server
+EOS Hackathon London, EOSwag
 
 
 ## EOSIO
