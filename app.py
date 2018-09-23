@@ -140,6 +140,12 @@ def checkin():
     # except:
     #     pass
     try:
+        eos_conn = EosClient(api_endpoint="http://localhost:8888", wallet_endpoint="http://localhost:8888")
+        eos_conn.wallet_unlock(EOS['wallet'])
+    except:
+        pass
+
+    try:
         print('>>>>>>>>>>>>>>>>>>>>')
         p = subprocess.call(["""cleos push action blockiosk takeaction '["user", "checkin", "McDonalds", "plz"]' -p blockiosk@active"""], shell=True)
         print('<<<<<<<<<<<<<<<<<<<<')
