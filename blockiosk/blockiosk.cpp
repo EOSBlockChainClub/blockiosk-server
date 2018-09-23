@@ -12,13 +12,14 @@ class blockiosk : public contract {
     private:
         /// @abi table actions
         struct actions {
+            uint64_t        id;
             account_name    owner;
             std::string     act_type;
             std::string     where;
             std::string     memo;
             time            create_time;
 
-            uint64_t primary_key()const { return owner; }
+            uint64_t primary_key()const { return id; }
         };
 
 
@@ -29,6 +30,7 @@ class blockiosk : public contract {
         void takeaction( account_name owner, std::string act_type, std::string where, std::string memo){
             _actions action(_self, _self);
             action.emplace( _self, [&]( auto& a ){
+                a.id = action.available_primary_key();
                 a.act_type = act_type;
                 a.owner = owner;
                 a.act_type = act_type;

@@ -1,13 +1,12 @@
-from flask import Flask, request, make_response, jsonify, send_file
+from flask import Flask, request, make_response, jsonify
 from gevent.pywsgi import WSGIServer
-import requests
 import traceback
 import pymysql
 import json
-from io import BytesIO
-import urllib
+import subprocess
 from eospy import EosClient
 from eospy.transaction_builder import TransactionBuilder, Action
+from pprint import pprint
 
 app = Flask(__name__)
 
@@ -94,6 +93,11 @@ def order():
         cur.close()
         conn.commit()
         conn.close()
+
+        print('>>>>>>>>>>>>>>>>>>>>')
+        pprint('order id: ', new_id)
+        pprint(orderlist)
+        print('<<<<<<<<<<<<<<<<<<<<')
         return make_response(jsonify(id=new_id), 200)
     except:
         traceback.print_exc()
@@ -116,20 +120,22 @@ def checkin():
     memo = request.values.get('memo', None)
 
     # 블록체인에 누가, 언제, 어떤 브랜드에 checkin 했는지 기록하기
-    args = {
-        "action": "takeaction",
-        "code": "blockiosk",
-        "args": {
-            "owner": "user",
-            "act_type": "checkin",
-            "where": store,
-            "memo": memo
-        }
-    }
-    try:
-        send_action('takeaction', args)
-    except:
-        pass
+    # args = {
+    #     "action": "takeaction",
+    #     "code": "blockiosk",
+    #     "args": {
+    #         "owner": "user",
+    #         "act_type": "checkin",
+    #         "where": store,
+    #         "memo": memo
+    #     }
+    # }
+    # try:
+    #     send_action('takeaction', args)
+    # except:
+    #     pass
+    p = subprocess.Popen(["""cleos push action blockiosk takeaction '["user", "checkin", "McDonalds", "plz"]' -p blockiosk@active"""], stdout=subprocess.PIPE)
+    pprint(p.communicate(timeout=3))
 
     # Off DB에도 저장하기
     try:
@@ -316,6 +322,10 @@ def checkin():
         cur.close()
         conn.commit()
         conn.close()
+
+        print('>>>>>>>>>>>>>>>>>>>>')
+        pprint(data)
+        print('<<<<<<<<<<<<<<<<<<<<')
         return make_response(jsonify(**data), 200)
     except:
         traceback.print_exc()
