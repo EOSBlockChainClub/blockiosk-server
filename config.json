@@ -1,9 +1,13 @@
 {
     "mysql":{
-        "host": "",
-        "user": "",
-        "password": "",
+        "host": "ciceronservice2.cng6yzqtxqhh.ap-northeast-1.rds.amazonaws.com",
+        "user": "root",
+        "password": "ciceron01!",
         "port": 3306,
-        "database": ""
+        "database": "blockiosk"
+    },
+    "eosio": {
+        "wallet": "PW5JrtK6ye43P8vHxPaHU4QdbWX5TVwZofFruYknzVxiknT4Gvyvg",
+        "active_key": "EOS7vtZvYDke1PVemFjAbnoEBmQCSkUtYg2CznRajsUdEP2r7pk7r"
     }
 }
