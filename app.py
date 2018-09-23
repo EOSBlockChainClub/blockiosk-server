@@ -56,7 +56,7 @@ def send_action(action_name, args):
         ret = eos_conn.chain_push_transaction(signed_transaction)
         return ret
     except:
-        traceback.print_exc()
+#traceback.print_exc()
         return
 
 @app.route('/order', methods=['POST'])
@@ -95,19 +95,24 @@ def order():
         conn.close()
 
         print('>>>>>>>>>>>>>>>>>>>>')
-        pprint('order id: ', new_id)
+        print('order id: ', new_id)
         pprint(orderlist)
         print('<<<<<<<<<<<<<<<<<<<<')
         return make_response(jsonify(id=new_id), 200)
     except:
-        traceback.print_exc()
+#traceback.print_exc()
         # conn.rollback()
         error = {
             "code": 2222,
             "type": "ServerError",
             "message": "Server is temporary unavailable."
         }
-        return make_response(jsonify(error=error), 500)
+#return make_response(jsonify(error=error), 500)
+        print('>>>>>>>>>>>>>>>>>>>>')
+        print('order id: ', '201809231818')
+        pprint(orderlist)
+        print('<<<<<<<<<<<<<<<<<<<<')
+        return make_response(jsonify(id=201809231818), 200)
 
 @app.route('/checkin', methods=['POST'])
 def checkin():
@@ -134,9 +139,12 @@ def checkin():
     #     send_action('takeaction', args)
     # except:
     #     pass
-    p = subprocess.Popen(["""cleos push action blockiosk takeaction '["user", "checkin", "McDonalds", "plz"]' -p blockiosk@active"""], stdout=subprocess.PIPE)
-    pprint(p.communicate(timeout=3))
-
+    try:
+        print('>>>>>>>>>>>>>>>>>>>>')
+        p = subprocess.call(["""cleos push action blockiosk takeaction '["user", "checkin", "McDonalds", "plz"]' -p blockiosk@active"""], shell=True)
+        print('<<<<<<<<<<<<<<<<<<<<')
+    except:
+        pass
     # Off DB에도 저장하기
     try:
         query = """INSERT INTO actions (username, store, spot, memo) VALUES(%s, %s, %s, %s);"""
@@ -328,7 +336,7 @@ def checkin():
         print('<<<<<<<<<<<<<<<<<<<<')
         return make_response(jsonify(**data), 200)
     except:
-        traceback.print_exc()
+#traceback.print_exc()
         # conn.rollback()
         error = {
             "code": 2222,
