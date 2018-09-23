@@ -105,4 +105,5 @@ venv.bak/
 
 
 .idea/
-cert_key/
+cert_key
+config.json
