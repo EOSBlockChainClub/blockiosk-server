@@ -65,7 +65,7 @@ orderlist = [
 POST
 
 - user: 사용자 이름, 이메일.. 응 안써~ (옵션)
-- store: 브랜드 이름 (starbucks, mcdonalds, domino)
+- store: 브랜드 이름 ([starbucks](https://www.starbucks.co.uk/menu), [mcdonalds](https://www.mcdonalds.com/us/en-us/full-menu.html), [domino](https://www.dominos.co.uk/menu?start=true) -클릭시 메뉴 사이트로 이동)
 - spot: 지점명 (옵션)
 - memo: (옵션)
 
