@@ -30,6 +30,81 @@ def connect_db():
 def hello_world():
     return 'Hello World!'
 
+def send_action(action_name, args):
+    eos_conn = EosClient(api_endpoint="http://fabius.ciceron.xyz:8888", wallet_endpoint="http://fabius.ciceron.xyz:8888")
+    txBuilder = TransactionBuilder(eos_conn)
+
+    try:
+        eos_conn.wallet_unlock(EOS['wallet'])
+    except:
+        pass
+
+    # param = {
+    #     "action": "writeaction",
+    #     "code": "david",
+    #     "args": {
+    #         "user": "david",
+    #         "action_type": action_name,
+    #         "objective": "",
+    #         "amount": point_amount
+    #     }
+    # }
+    try:
+        bin_param = eos_conn.chain_abi_json_to_bin(args)
+        act = Action("blockiosk", action_name, "blockiosk", "active", bin_param['binargs'])
+        ready_tx, chain_id =  txBuilder.build_sign_transaction_request([act])
+        signed_transaction = eos_conn.wallet_sign_transaction(ready_tx, ['EOS7vtZvYDke1PVemFjAbnoEBmQCSkUtYg2CznRajsUdEP2r7pk7r'], chain_id)
+        ret = eos_conn.chain_push_transaction(signed_transaction)
+        return ret
+    except:
+        traceback.print_exc()
+        return
+
+@app.route('/order', methods=['POST'])
+def order():
+    # 주문번호 + 배열로 제품번호, 수량 받기
+    order_id = request.values.get('order_id', None)
+    orderlist = request.values.get('order', None)
+    # orderlist = [
+    #     {
+    #         'product_id': 1,
+    #         'quantity': 1,
+    #         'memo': '소금빼고주세요'
+    #     },
+    #     {
+    #         'product_id': 2,
+    #         'quantity': 2,
+    #         'memo': None
+    #     }
+    # ]
+
+    conn = connect_db()
+    cur = conn.cursor()
+
+    # Off DB에 주문내역 저장
+    try:
+        query = """INSERT INTO orders (number) VALUES(%s);"""
+        cur.execute(query, args=(order_id, ))
+        new_id = cur.lastrowid
+
+        for p in orderlist:
+            query = """INSERT INTO orders_detail (order_id, product_id, quantity, memo) VALUES(%s, %s, %s, %s);"""
+            cur.execute(query, args=(new_id, p['product_id'], p['quantity'], p['memo'], ))
+
+        cur.close()
+        conn.commit()
+        conn.close()
+        return make_response(jsonify(id=new_id), 200)
+    except:
+        traceback.print_exc()
+        # conn.rollback()
+        error = {
+            "code": 2222,
+            "type": "ServerError",
+            "message": "Server is temporary unavailable."
+        }
+        return make_response(jsonify(error=error), 500)
+
 @app.route('/checkin', methods=['POST'])
 def checkin():
     conn = connect_db()
@@ -251,81 +326,6 @@ def checkin():
             "message": "Server is temporary unavailable."
         }
         return make_response(jsonify(error=error), 500)
-
-@app.route('/order', methods=['POST'])
-def order():
-    # 주문번호 + 배열로 제품번호, 수량 받기
-    order_id = request.values.get('order_id', None)
-    orderlist = request.values.get('order', None)
-    # orderlist = [
-    #     {
-    #         'product_id': 1,
-    #         'quantity': 1,
-    #         'memo': '소금빼고주세요'
-    #     },
-    #     {
-    #         'product_id': 2,
-    #         'quantity': 2,
-    #         'memo': None
-    #     }
-    # ]
-
-    conn = connect_db()
-    cur = conn.cursor()
-
-    # Off DB에 주문내역 저장
-    try:
-        query = """INSERT INTO orders (number) VALUES(%s);"""
-        cur.execute(query, args=(order_id, ))
-        new_id = cur.lastrowid
-
-        for p in orderlist:
-            query = """INSERT INTO orders_detail (order_id, product_id, quantity, memo) VALUES(%s, %s, %s, %s);"""
-            cur.execute(query, args=(new_id, p['product_id'], p['quantity'], p['memo'], ))
-
-        cur.close()
-        conn.commit()
-        conn.close()
-        return make_response(jsonify(id=new_id), 200)
-    except:
-        traceback.print_exc()
-        # conn.rollback()
-        error = {
-            "code": 2222,
-            "type": "ServerError",
-            "message": "Server is temporary unavailable."
-        }
-        return make_response(jsonify(error=error), 500)
-
-def send_action(action_name, args):
-    eos_conn = EosClient(api_endpoint="http://fabius.ciceron.xyz:8888", wallet_endpoint="http://fabius.ciceron.xyz:8888")
-    txBuilder = TransactionBuilder(eos_conn)
-
-    try:
-        eos_conn.wallet_unlock(EOS['wallet'])
-    except:
-        pass
-
-    # param = {
-    #     "action": "writeaction",
-    #     "code": "david",
-    #     "args": {
-    #         "user": "david",
-    #         "action_type": action_name,
-    #         "objective": "",
-    #         "amount": point_amount
-    #     }
-    # }
-    try:
-        bin_param = eos_conn.chain_abi_json_to_bin(args)
-        act = Action("blockiosk", action_name, "blockiosk", "active", bin_param['binargs'])
-        ready_tx, chain_id =  txBuilder.build_sign_transaction_request([act])
-        signed_transaction = eos_conn.wallet_sign_transaction(ready_tx, ['EOS7vtZvYDke1PVemFjAbnoEBmQCSkUtYg2CznRajsUdEP2r7pk7r'], chain_id)
-        ret = eos_conn.chain_push_transaction(signed_transaction)
-        return ret
-    except:
-        traceback.print_exc()
-        return
 
 if __name__ == '__main__':
     # app.run()
