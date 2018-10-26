@@ -140,14 +140,13 @@ def checkin():
     # except:
     #     pass
     try:
-        eos_conn = EosClient(api_endpoint="http://localhost:8888", wallet_endpoint="http://localhost:8888")
-        eos_conn.wallet_unlock(EOS['wallet'])
+        subprocess.call(["cleos wallet unlock --password PW5JrtK6ye43P8vHxPaHU4QdbWX5TVwZofFruYknzVxiknT4Gvyvg", shell=True)
     except:
         pass
 
     try:
         print('>>>>>>>>>>>>>>>>>>>>')
-        p = subprocess.call(["""cleos push action blockiosk takeaction '["user", "checkin", "McDonalds", "plz"]' -p blockiosk@active"""], shell=True)
+        p = subprocess.call(["""cleos push action blockiosk takeaction '["user", "checkin", "{}", "plz"]' -p blockiosk@active""".format(store)], shell=True)
         print('<<<<<<<<<<<<<<<<<<<<')
     except:
         pass
@@ -338,6 +337,7 @@ def checkin():
         conn.close()
 
         print('>>>>>>>>>>>>>>>>>>>>')
+        print(store)
         pprint(data)
         print('<<<<<<<<<<<<<<<<<<<<')
         return make_response(jsonify(**data), 200)
